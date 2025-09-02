@@ -1,4 +1,0 @@
-android/
-├─ buildozer.spec          # 已调好
-├─ main.py                 # 你的记账 App
-└─ .github/workflows/build.yml
