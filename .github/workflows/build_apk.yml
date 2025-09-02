@@ -1,57 +1,45 @@
-name: Build WeChat Ledger APK
+name: Build Android APK
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
+  push:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-22.04
+
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
-    - name: Install system deps
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-pip openjdk-8-jdk git zip unzip build-essential
-
-    - name: Install Buildozer & deps
-      run: |
-        pip3 install --user buildozer cython
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-        
-   
-
-    - name: Cache Buildozer downloads
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.buildozer
-          ~/.cache/pip
-        key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-    
-    - name: Update Buildozer & deps
-      run: |
-        pip install --upgrade buildozer cython
-        
-    - name: Check Python environment
+      - name: Install Buildozer deps
         run: |
-            python --version
-            pip list
-        
-    - name: Build APK (debug)
-      run: |
-            buildozer -v android debug log_level=2
+          sudo apt-get update
+          sudo apt-get install -y \
+            git zip unzip openjdk-17-jdk \
+            zlib1g-dev libncurses5 libstdc++6 libffi-dev \
+            libssl-dev autoconf automake libtool \
+            cmake pkg-config
 
-    - name: Upload APK artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: wechat-ledger-debug
-        path: bin/*.apk
-        retention-days: 30
+      - name: Install Buildozer
+        run: |
+          pip install --upgrade pip
+          pip install buildozer==1.5.0 Cython==0.29.36 virtualenv
+
+      - name: Build debug APK
+        env:
+          BUILDOZER_WARN_ON_ROOT: "1"
+        run: |
+          buildozer android debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: bin/*.apk
