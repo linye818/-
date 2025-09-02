@@ -78,4 +78,50 @@ class LedgerApp(App):
         with sqlite3.connect(DB) as conn:
             conn.execute('''
                 CREATE TABLE IF NOT EXISTS records (
-                   
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    date TEXT,
+                    amount REAL,
+                    category TEXT,
+                    note TEXT
+                )
+            ''')
+
+    def save_record(self, amount, category, note):
+        try:
+            amt = float(amount)
+            if amt <= 0:
+                raise ValueError
+        except ValueError:
+            return
+        category = category or '未分类'
+        note = note or ''
+        with sqlite3.connect(DB) as conn:
+            conn.execute(
+                "INSERT INTO records (date, amount, category, note) VALUES (?, ?, ?, ?)",
+                (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), amt, category, note)
+            )
+        self.refresh()
+
+    def refresh(self):
+        today = datetime.now().strftime('%Y-%m-%d')
+        with sqlite3.connect(DB) as conn:
+            cur = conn.execute("SELECT SUM(amount) FROM records WHERE date LIKE ?", (today + '%',))
+            total = cur.fetchone()[0] or 0.0
+            self.root.get_screen('main').today_text = f'今日支出: {total:.2f}'
+
+            rows = conn.execute("SELECT date, amount, category, note FROM records ORDER BY date DESC LIMIT 50").fetchall()
+            self.root.get_screen('main').records = [f"{d} | {a:.2f} | {c} | {n}" for d, a, c, n in rows]
+
+    def export_csv(self):
+        rows = []
+        with sqlite3.connect(DB) as conn:
+            rows = conn.execute("SELECT * FROM records ORDER BY date DESC").fetchall()
+        filename = f'ledger_{datetime.now():%Y%m%d_%H%M%S}.csv'
+        with open(filename, 'w', newline='', encoding='utf-8-sig') as f:
+            writer = csv.writer(f)
+            writer.writerow(['日期', '金额', '分类', '备注'])
+            writer.writerows(rows)
+        self.root.get_screen('main').ids.note.text = f'已导出 {filename}'
+
+if __name__ == '__main__':
+    LedgerApp().run()
