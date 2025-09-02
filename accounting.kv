@@ -98,3 +98,192 @@
                 on_press: root.goto_statistics()
         
         Widget:  # 占位空间
+
+<AddTransactionScreen>:
+    type_spinner: type_spinner
+    category_spinner: category_spinner
+    amount_input: amount_input
+    note_input: note_input
+    date_input: date_input
+    
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 15
+        
+        Label:
+            text: '添加交易记录'
+            font_size: '24sp'
+            bold: True
+            size_hint_y: None
+            height: '40dp'
+        
+        BoxLayout:
+            size_hint_y: None
+            height: '40dp'
+            spacing: 10
+            
+            Label:
+                text: '类型:'
+                size_hint_x: None
+                width: '60dp'
+            
+            Spinner:
+                id: type_spinner
+                text: '支出'
+                values: ['支出', '收入']
+                on_text: root.update_categories()
+        
+        BoxLayout:
+            size_hint_y: None
+            height: '40dp'
+            spacing: 10
+            
+            Label:
+                text: '类别:'
+                size_hint_x: None
+                width: '60dp'
+            
+            Spinner:
+                id: category_spinner
+                text: '餐饮'
+        
+        BoxLayout:
+            size_hint_y: None
+            height: '40dp'
+            spacing: 10
+            
+            Label:
+                text: '金额:'
+                size_hint_x: None
+                width: '60dp'
+            
+            TextInput:
+                id: amount_input
+                multiline: False
+                input_filter: 'float'
+                hint_text: '请输入金额'
+        
+        BoxLayout:
+            size_hint_y: None
+            height: '40dp'
+            spacing: 10
+            
+            Label:
+                text: '日期:'
+                size_hint_x: None
+                width: '60dp'
+            
+            TextInput:
+                id: date_input
+                multiline: False
+                hint_text: 'YYYY-MM-DD HH:MM'
+        
+        BoxLayout:
+            size_hint_y: None
+            height: '80dp'
+            spacing: 10
+            
+            Label:
+                text: '备注:'
+                size_hint_x: None
+                width: '60dp'
+            
+            TextInput:
+                id: note_input
+                multiline: True
+                hint_text: '可选备注信息'
+        
+        BoxLayout:
+            size_hint_y: None
+            height: '50dp'
+            spacing: 10
+            
+            Button:
+                text: '取消'
+                on_press: root.manager.current = 'main'
+            
+            Button:
+                text: '保存'
+                background_color: 0.2, 0.6, 0.8, 1
+                on_press: root.add_transaction()
+        
+        Widget:  # 占位空间
+
+<HistoryScreen>:
+    scroll_layout: scroll_layout
+    
+    BoxLayout:
+        orientation: 'vertical'
+        
+        BoxLayout:
+            size_hint_y: None
+            height: '50dp'
+            padding: 10
+            
+            Button:
+                text: '返回'
+                size_hint_x: None
+                width: '100dp'
+                on_press: root.manager.current = 'main'
+            
+            Label:
+                text: '交易历史'
+                font_size: '20sp'
+                bold: True
+                halign: 'center'
+                valign: 'middle'
+                text_size: self.size
+            
+            Widget:  # 占位
+        
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            
+            GridLayout:
+                id: scroll_layout
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 5
+                padding: 10
+
+<StatisticsScreen>:
+    stats_layout: stats_layout
+    
+    BoxLayout:
+        orientation: 'vertical'
+        
+        BoxLayout:
+            size_hint_y: None
+            height: '50dp'
+            padding: 10
+            
+            Button:
+                text: '返回'
+                size_hint_x: None
+                width: '100dp'
+                on_press: root.manager.current = 'main'
+            
+            Label:
+                text: '统计信息'
+                font_size: '20sp'
+                bold: True
+                halign: 'center'
+                valign: 'middle'
+                text_size: self.size
+            
+            Widget:  # 占位
+        
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            
+            BoxLayout:
+                id: stats_layout
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 10
+                padding: 10
