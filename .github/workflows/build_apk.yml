@@ -1,12 +1,12 @@
 name: Build Android APK
 
 on:
-  workflow_dispatch:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  build-apk:
+  build:
     runs-on: ubuntu-22.04
     timeout-minutes: 180
 
@@ -14,48 +14,36 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
-      - name: Install system packages
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y git zip unzip openjdk-17-jdk \
+          sudo apt-get install -y \
+            git zip unzip openjdk-17-jdk \
             zlib1g-dev libncurses5 libstdc++6 libffi-dev \
-            libssl-dev autoconf automake libtool cmake pkg-config \
-            build-essential
+            libssl-dev autoconf automake libtool \
+            cmake pkg-config python3-dev
 
-      - name: Upgrade pip and install buildozer + dependencies
+      - name: Install Buildozer & tools
         run: |
           python -m pip install --upgrade pip
-          pip install --upgrade Cython==0.29.36 virtualenv
-          pip install buildozer==1.5.0
+          pip install --user --upgrade buildozer==1.5.0 virtualenv Cython==0.29.36
+          # ensure pip user bin in PATH
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Ensure JAVA_HOME
+      - name: Show buildozer version
         run: |
-          echo "JAVA_HOME=$(/usr/lib/jvm/java-17-openjdk-amd64)" >> $GITHUB_ENV
-          java -version
-
-      - name: Show buildozer.spec (debug)
-        run: |
-          echo "---- buildozer.spec ----"
-          sed -n '1,240p' buildozer.spec || true
-          echo "------------------------"
-
-      - name: Clean previous build
-        run: |
-          # 防止缓存问题
-          buildozer android clean || true
+          buildozer --version || true
 
       - name: Build APK (debug)
         env:
-          # 避免 buildozer 在 CI 中提示 root 警告阻断
           BUILDOZER_WARN_ON_ROOT: "1"
         run: |
-          # use -v to produce more logs if needed
-          buildozer -v android debug || (echo "Buildozer failed with exit code $?"; exit 1)
+          buildozer android debug || (cat ./.buildozer/android/platform/build/dists/*/build.log 2>/dev/null || true; exit 1)
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
