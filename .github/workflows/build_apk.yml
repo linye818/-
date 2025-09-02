@@ -25,6 +25,8 @@ jobs:
       run: |
         pip3 install --user buildozer cython
         echo "$HOME/.local/bin" >> $GITHUB_PATH
+        
+   
 
     - name: Cache Buildozer downloads
       uses: actions/cache@v3
@@ -33,7 +35,16 @@ jobs:
           ~/.buildozer
           ~/.cache/pip
         key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-
+    
+    - name: Update Buildozer & deps
+      run: |
+        pip install --upgrade buildozer cython
+        
+    - name: Check Python environment
+        run: |
+            python --version
+            pip list
+        
     - name: Build APK (debug)
       run: |
             buildozer -v android debug log_level=2
