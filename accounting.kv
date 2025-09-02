@@ -1,0 +1,100 @@
+#:kivy 1.11.1
+
+<MainScreen>:
+    balance_label: balance_label
+    income_label: income_label
+    expense_label: expense_label
+    month_label: month_label
+    
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+        
+        BoxLayout:
+            size_hint_y: None
+            height: '50dp'
+            spacing: 10
+            
+            Button:
+                text: '<'
+                size_hint_x: None
+                width: '50dp'
+                on_press: root.change_month(-1)
+            
+            Label:
+                id: month_label
+                text: '2023年11月'
+                font_size: '20sp'
+                bold: True
+                halign: 'center'
+                valign: 'middle'
+                text_size: self.size
+            
+            Button:
+                text: '>'
+                size_hint_x: None
+                width: '50dp'
+                on_press: root.change_month(1)
+        
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: None
+            height: '150dp'
+            padding: 10
+            canvas.before:
+                Color:
+                    rgba: 0.2, 0.6, 0.8, 1
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [10,]
+            
+            Label:
+                text: '当前结余'
+                font_size: '16sp'
+                color: 1, 1, 1, 1
+            
+            Label:
+                id: balance_label
+                text: '¥0.00'
+                font_size: '30sp'
+                bold: True
+                color: 1, 1, 1, 1
+        
+        BoxLayout:
+            size_hint_y: None
+            height: '60dp'
+            spacing: 10
+            
+            Button:
+                id: income_label
+                text: '收入: ¥0.00'
+                background_color: 0.2, 0.8, 0.2, 1
+                on_press: root.goto_add_transaction()
+            
+            Button:
+                id: expense_label
+                text: '支出: ¥0.00'
+                background_color: 0.8, 0.2, 0.2, 1
+                on_press: root.goto_add_transaction()
+        
+        BoxLayout:
+            size_hint_y: None
+            height: '50dp'
+            spacing: 10
+            
+            Button:
+                text: '记一笔'
+                background_color: 0.2, 0.6, 0.8, 1
+                on_press: root.goto_add_transaction()
+            
+            Button:
+                text: '历史记录'
+                on_press: root.goto_history()
+            
+            Button:
+                text: '统计'
+                on_press: root.goto_statistics()
+        
+        Widget:  # 占位空间
